@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:container": "sh scripts/test-e2e-container.sh"
   },
   "dependencies": {
     "next": "^16.4.5",

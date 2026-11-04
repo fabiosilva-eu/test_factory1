@@ -121,10 +121,14 @@ test("layout fits narrow phones, tablets, and desktop", async ({ page }) => {
   }
 });
 
-// Capture review artifacts until desktop/mobile baselines can be visually approved.
+// Save captures independently of the reporter so CI artifacts retain them.
 test("capture homepage for visual review", async ({ page }, testInfo) => {
   await page.clock.setFixedTime(new Date("2026-11-04T12:00:00Z"));
   await page.goto("/");
+  // The copyright year is rendered at build time, outside the browser clock.
+  await page.getByText(/^© \d{4} Factory/).evaluate((element) => {
+    element.textContent = element.textContent!.replace(/© \d{4}/, "© 2026");
+  });
   await page.evaluate(async () => {
     await document.fonts.ready;
     const images = Array.from(document.images);
@@ -137,13 +141,16 @@ test("capture homepage for visual review", async ({ page }, testInfo) => {
   const widths = testInfo.project.name === "desktop" ? [1440, 768] : [390];
   for (const width of widths) {
     await page.setViewportSize({ width, height: 1000 });
+    const path = testInfo.outputPath(`homepage-${width}px.png`);
     const screenshot = await page.screenshot({
+      path,
       fullPage: true,
       animations: "disabled",
     });
     await testInfo.attach(`homepage-${width}px`, {
-      body: screenshot,
+      path,
       contentType: "image/png",
     });
+    expect(screenshot).toMatchSnapshot(`homepage-${width}px.png`);
   }
 });
