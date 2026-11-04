@@ -41,7 +41,7 @@ For this CI repair, clean `npm ci`, typechecking, `npm test`, and browser discov
 
 ## Health endpoints
 
-`GET /api/health` and `GET /api/health2` return HTTP 200 with an `application/json` response:
+`GET /api/health`, `GET /api/health2`, and `GET /api/health3` return HTTP 200 with an `application/json` response:
 
 ```json
 {"status":"ok"}
@@ -56,6 +56,7 @@ check the endpoints:
 ```sh
 curl -i http://localhost:3000/api/health
 curl -i http://localhost:3000/api/health2
+curl -i http://localhost:3000/api/health3
 ```
 
 Run the type check and production HTTP integration test:
