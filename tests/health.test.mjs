@@ -54,7 +54,7 @@ test("Health endpoints return healthy JSON responses repeatedly", { timeout: 45_
     }
   }
 
-  for (const path of ["/api/health", "/api/health2"]) {
+  for (const path of ["/api/health", "/api/health2", "/api/health3"]) {
     await t.test(`GET ${path} returns a healthy JSON response repeatedly`, async () => {
       for (let request = 0; request < 2; request++) {
         const response = await fetch(`http://127.0.0.1:${port}${path}`, { signal: AbortSignal.timeout(5_000) });
