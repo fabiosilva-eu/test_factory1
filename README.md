@@ -39,9 +39,9 @@ Screenshot baselines depend on the rendering environment. Use the matching Noble
 
 For this CI repair, clean `npm ci`, typechecking, `npm test`, and browser discovery (10 tests from `home.spec.ts` only) passed locally. The Podman container command also passed the health test and all 10 browser tests, including the three existing screenshot comparisons, without updating baselines. `actionlint` validated the workflow. The updated GitHub Actions job still needs its factory-triggered run after publication.
 
-## Health endpoint
+## Health endpoints
 
-`GET /api/health` returns HTTP 200 with an `application/json` response:
+`GET /api/health` and `GET /api/health2` return HTTP 200 with an `application/json` response:
 
 ```json
 {"status":"ok"}
@@ -51,10 +51,11 @@ This checks that the application can serve requests. It does not depend on exter
 services or environment variables.
 
 Install dependencies with `npm ci`, then start the local app with `npm run dev` and
-check the endpoint:
+check the endpoints:
 
 ```sh
 curl -i http://localhost:3000/api/health
+curl -i http://localhost:3000/api/health2
 ```
 
 Run the type check and production HTTP integration test:
@@ -65,7 +66,7 @@ npm test
 ```
 
 `npm test` builds the application, starts a production server on an available local
-port, checks the health endpoint twice, and stops the server afterward.
+port, checks each health endpoint twice, and stops the server afterward.
 Use `npm run test:health` to run the same integration test against an existing
 production build. Playwright discovers only `*.spec.ts` files; the health test
 uses Node's test runner separately in CI and the container helper.
