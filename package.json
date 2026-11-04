@@ -8,8 +8,9 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
-    "test:e2e:container": "sh scripts/test-e2e-container.sh"
-    "test": "npm run build && node --test tests/health.test.mjs"
+    "test:e2e:container": "sh scripts/test-e2e-container.sh",
+    "test:health": "node --test tests/health.test.mjs",
+    "test": "npm run build && npm run test:health"
   },
   "dependencies": {
     "next": "^16.4.5",
