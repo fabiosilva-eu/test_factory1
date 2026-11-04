@@ -134,9 +134,16 @@ test("capture homepage for visual review", async ({ page }, testInfo) => {
   await page.addStyleTag({
     content: "nextjs-portal { display: none !important; }",
   });
-  const screenshot = await page.screenshot({
-    fullPage: true,
-    animations: "disabled",
-  });
-  await testInfo.attach("homepage", { body: screenshot, contentType: "image/png" });
+  const widths = testInfo.project.name === "desktop" ? [1440, 768] : [390];
+  for (const width of widths) {
+    await page.setViewportSize({ width, height: 1000 });
+    const screenshot = await page.screenshot({
+      fullPage: true,
+      animations: "disabled",
+    });
+    await testInfo.attach(`homepage-${width}px`, {
+      body: screenshot,
+      contentType: "image/png",
+    });
+  }
 });

@@ -16,14 +16,14 @@
 .page * {
   box-sizing: border-box;
 }
-.page :is(h1, h2, h3, p) {
+:where(.page) :where(h1, h2, h3, p) {
   margin: 0;
 }
 .page a {
   color: inherit;
   text-decoration: none;
 }
-.page button {
+:where(.page) button {
   font: inherit;
 }
 .page :is(a, button, summary):focus-visible {
