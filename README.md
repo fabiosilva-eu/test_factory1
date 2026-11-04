@@ -35,3 +35,30 @@ The command uses the official Playwright image matching the lockfile, installs d
 The `Homepage checks` GitHub Actions workflow runs these checks on Ubuntu with Node.js 22 and installs Chromium plus its system dependencies. It runs on pushes, pull requests, and manual dispatches, and uploads browser traces and full-page review captures as the `homepage-browser-results` artifact. Browser assertion failures fail the job.
 
 TypeScript, the production build, and all 10 Playwright tests passed using the Linux container command. Full-page desktop, tablet, and mobile captures were visually reviewed for wrapping, spacing, cropping, and readability before accepting the screenshot baselines. Native macOS Chromium launch remains blocked in this workspace (`MachPortRendezvousServer: Permission denied`). Interactive browser access to the reference was declined, so the neutral/violet styling remains an interpretation of the inspected content rather than a verified pixel match. The GitHub Actions workflow itself has not been run from this workspace.
+## Health endpoint
+
+`GET /api/health` returns HTTP 200 with an `application/json` response:
+
+```json
+{"status":"ok"}
+```
+
+This checks that the application can serve requests. It does not depend on external
+services or environment variables.
+
+Install dependencies with `npm ci`, then start the local app with `npm run dev` and
+check the endpoint:
+
+```sh
+curl -i http://localhost:3000/api/health
+```
+
+Run the type check and production HTTP integration test:
+
+```sh
+npm run typecheck
+npm test
+```
+
+`npm test` builds the application, starts a production server on an available local
+port, checks the health endpoint twice, and stops the server afterward.

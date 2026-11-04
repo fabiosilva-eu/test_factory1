@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
     "test:e2e:container": "sh scripts/test-e2e-container.sh"
+    "test": "npm run build && node --test tests/health.test.mjs"
   },
   "dependencies": {
     "next": "^16.4.5",
