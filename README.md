@@ -18,6 +18,7 @@ The Factory name, projects, and metrics in illustrations are demonstration conte
 ```sh
 npm run typecheck
 npm run build
+npm run test:health
 npx playwright install chromium
 npm run test:e2e
 ```
@@ -30,11 +31,14 @@ For repeatable Linux rendering, or when macOS prevents Chromium from launching, 
 npm run test:e2e:container
 ```
 
-The command uses the official Playwright image matching the lockfile, installs dependencies, typechecks, builds, and runs all 10 tests in an isolated container. It copies only application/test inputs, without root `.env` files or credentials, and returns captures/traces to `test-results/`. It removes its temporary container afterward and propagates check failures. Docker is also supported with `CONTAINER_RUNTIME=docker npm run test:e2e:container`. Baselines are platform-specific; use Linux for comparison. To update baselines after an intentional design change, run `npm run test:e2e -- --update-snapshots` on Linux and visually review the resulting PNG changes.
+The command uses the official Playwright Noble image matching the lockfile, installs dependencies, typechecks, builds, runs the health integration test, and runs all 10 browser tests in an isolated container. It copies only application/test inputs, without root `.env` files or credentials, and returns captures/traces to `test-results/`. It removes its temporary container afterward and propagates check failures. Docker is also supported with `CONTAINER_RUNTIME=docker npm run test:e2e:container`.
 
-The `Homepage checks` GitHub Actions workflow runs these checks on Ubuntu with Node.js 22 and installs Chromium plus its system dependencies. It runs on pushes, pull requests, and manual dispatches, and uploads browser traces and full-page review captures as the `homepage-browser-results` artifact. Browser assertion failures fail the job.
+The `Homepage checks` GitHub Actions workflow runs the same health and browser checks with Node.js 22 inside `mcr.microsoft.com/playwright:v1.64.1-noble`, using its bundled Chromium and system dependencies. The workflow's `playwright-version` matrix value must match the installed `@playwright/test` version in `package-lock.json`; an early check fails if they differ. Update both together when upgrading Playwright. The local helper selects its image version directly from the lockfile. CI runs on pushes, pull requests, and manual dispatches, and uploads browser traces and full-page review captures as the `homepage-browser-results` artifact. Browser assertion failures fail the job.
 
-TypeScript, the production build, and all 10 Playwright tests passed using the Linux container command. Full-page desktop, tablet, and mobile captures were visually reviewed for wrapping, spacing, cropping, and readability before accepting the screenshot baselines. Native macOS Chromium launch remains blocked in this workspace (`MachPortRendezvousServer: Permission denied`). Interactive browser access to the reference was declined, so the neutral/violet styling remains an interpretation of the inspected content rather than a verified pixel match. The GitHub Actions workflow itself has not been run from this workspace.
+Screenshot baselines depend on the rendering environment. Use the matching Noble container for comparisons rather than Chromium installed on the host. After an intentional design change, generate candidate baselines in that container, copy the three PNGs from `tests/home.spec.ts-snapshots/` back to the repository, and visually review the expected, actual, and diff captures before accepting changes. Run the container helper again without `--update-snapshots` to confirm strict comparisons pass. The helper returns test artifacts, not updated baseline files.
+
+For this CI repair, clean `npm ci`, typechecking, `npm test`, and browser discovery (10 tests from `home.spec.ts` only) passed locally. The Podman container command also passed the health test and all 10 browser tests, including the three existing screenshot comparisons, without updating baselines. `actionlint` validated the workflow. The updated GitHub Actions job still needs its factory-triggered run after publication.
+
 ## Health endpoint
 
 `GET /api/health` returns HTTP 200 with an `application/json` response:
@@ -62,3 +66,6 @@ npm test
 
 `npm test` builds the application, starts a production server on an available local
 port, checks the health endpoint twice, and stops the server afterward.
+Use `npm run test:health` to run the same integration test against an existing
+production build. Playwright discovers only `*.spec.ts` files; the health test
+uses Node's test runner separately in CI and the container helper.

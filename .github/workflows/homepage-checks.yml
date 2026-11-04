@@ -11,6 +11,10 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        playwright-version: ["1.64.1"]
+    container: mcr.microsoft.com/playwright:v${{ matrix.playwright-version }}-noble
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -19,9 +23,14 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Check Playwright image matches installed version
+        env:
+          PLAYWRIGHT_IMAGE_VERSION: ${{ matrix.playwright-version }}
+        run: |
+          node -e 'require("node:assert/strict").equal(require("@playwright/test/package.json").version, process.env.PLAYWRIGHT_IMAGE_VERSION, "Playwright image must match the installed version");'
       - run: npm run typecheck
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - run: npm run test:health
       - run: npm run test:e2e -- --workers=2
       - name: Upload browser traces and visual review captures
         if: always()

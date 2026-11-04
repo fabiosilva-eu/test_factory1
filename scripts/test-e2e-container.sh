@@ -22,7 +22,7 @@ cp -R app public tests "$staging/"
 cp package.json package-lock.json tsconfig.json next.config.mjs playwright.config.ts "$staging/"
 container=$("$runtime" create --workdir /work --env CI=1 \
   "mcr.microsoft.com/playwright:v${version}-noble" \
-  sh -c 'npm ci && npm run typecheck && npm run build && npm run test:e2e -- --workers=2 "$@"' sh "$@")
+  sh -c 'npm ci && npm run typecheck && npm run build && npm run test:health && npm run test:e2e -- --workers=2 "$@"' sh "$@")
 "$runtime" cp "$staging/." "$container:/work"
 
 status=0
